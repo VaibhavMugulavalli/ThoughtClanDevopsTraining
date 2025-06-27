@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Credit Risk Classifier</title>
+</head>
+<body>
+    <h2>Credit Risk Prediction</h2>
+    <form method="post">
+        <label for="credit_history">Credit History:</label>
+        <select name="credit_history" required>
+            <option value="no credits/all paid">No credits / All paid</option>
+            <option value="all paid">All paid</option>
+            <option value="existing paid">Existing paid</option>
+            <option value="delayed previously">Delayed previously</option>
+            <option value="critical/other existing credit">Critical / Other existing credit</option>
+        </select>
+        <br><br>
+
+        <label for="credit_amount">Credit Amount:</label>
+        <input type="number" step="0.01" name="credit_amount" required>
+        <br><br>
+
+        <label for="age">Age:</label>
+        <input type="number" step="1" name="age" required>
+        <br><br>
+
+        <label for="existing_credits">Existing Credits:</label>
+        <input type="number" step="1" name="existing_credits" required>
+        <br><br>
+
+        <input type="submit" value="Predict">
+    </form>
+
+    {% if prediction %}
+        <h3>Prediction: {{ prediction }}</h3>
+    {% endif %}
+</body>
+</html>

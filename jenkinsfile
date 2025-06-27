@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('vaibhav-dockerhub-creds') 
+        DOCKER_IMAGE = "vaibhavmugulavalli/credit-risk-ml"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        NAMESPACE = "vaibhav-ns"
+    }
+
+    stages {
+
+        stage('Clone Repository') {
+            steps {
+                git url: 'https://github.com/VaibhavMugulavalli/ThoughtClanDevopsTraining.git',
+                    branch: 'main',
+                    credentialsId: 'vaibhav-github-creds'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "docker build -t $DOCKER_IMAGE:$IMAGE_TAG ."
+                }
+            }
+        }
+
+        stage('Push Docker Image to DockerHub') {
+            steps {
+                script {
+                    sh """
+                    echo "$DOCKERHUB_CREDENTIALS_PSW" | docker login -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
+                    docker push $DOCKER_IMAGE:$IMAGE_TAG
+                    docker logout
+                    """
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    sh """
+                    sed 's|IMAGE_PLACEHOLDER|$DOCKER_IMAGE:$IMAGE_TAG|g' deployment.yml > k8s-deployment-generated.yaml
+                    kubectl apply -f k8s-deployment-generated.yaml
+                    kubectl get po -n $NAMESPACE
+                    kubectl get svc -n $NAMESPACE
+                    """
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo '✅ Deployment successful!'
+        }
+        failure {
+            echo '❌ Deployment failed.'
+        }
+    }
+}

@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vaibhav-ns #-> Give your own namespace with your name Ex: ram-ns
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vaibhav-credit-risk-app #-> Give your deployment name Ex: <your-name-app-name>
+  namespace: vaibhav-ns #-> Give your own namespace with your name
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: credit-risk-app #-> Give your app name app: java-1
+  template:
+    metadata:
+      labels:
+        app: credit-risk-app #-> Give your app name app: java-1
+    spec:
+      containers:
+      - name: credit-risk-app-container #-> Give your container name Ex: java-1
+        image: IMAGE_PLACEHOLDER #-> Give your dockerhub image name basically with your username/app:1.0
+        ports:
+        - containerPort: 80 #-> make suer your container port properly ex: 8000 or 3000 depends on the container running.
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vaibhav-credit-risk-app-svc #-> Give your service name Ex: <your-name+app-name-svc
+  namespace: vaibhav-ns #-> Give your own namespace with your name
+spec:
+  selector:
+    app: credit-risk-app #-> Give your app name app: java-1
+  ports:
+    - protocol: TCP
+      port: 80 #-> keep the same port for service from pod port as well for best practice.
+      targetPort: 5005  #-> make suer your container port properly ex: 8000 or 3000 depends on the container running.
+  type: LoadBalancer
